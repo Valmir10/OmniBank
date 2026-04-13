@@ -1,22 +1,27 @@
 import express from "express";
 import cors from "cors";
+import { Pool } from "pg";
 import { env } from "./infrastructure/config/env";
 import { errorHandler } from "./presentation/middleware/errorHandler";
-import authRoutes from "./presentation/routes/authRoutes";
+import { createAuthRouter } from "./presentation/routes/authRoutes";
 import healthRoutes from "./presentation/routes/healthRoutes";
+import { createDependencies } from "./infrastructure/config/dependencies";
 
-const app = express();
+export function createApp(pool: Pool) {
+  const app = express();
+  const deps = createDependencies(pool);
 
-// Core middleware
-app.use(cors({ origin: env.cors.origin, credentials: true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+  // Core middleware
+  app.use(cors({ origin: env.cors.origin, credentials: true }));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use("/api/health", healthRoutes);
-app.use("/api/auth", authRoutes);
+  // Routes
+  app.use("/api/health", healthRoutes);
+  app.use("/api/auth", createAuthRouter(deps.authController));
 
-// Error handling
-app.use(errorHandler);
+  // Error handling
+  app.use(errorHandler);
 
-export default app;
+  return app;
+}
