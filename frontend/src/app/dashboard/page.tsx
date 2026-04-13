@@ -1,20 +1,33 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboard } from "@/hooks/useDashboard";
+import { TransactionList } from "@/components/ui/TransactionList";
+
+const SpendingDoughnut = dynamic(
+  () => import("@/components/charts/SpendingDoughnut").then((m) => m.SpendingDoughnut),
+  { ssr: false }
+);
+const SpendingBar = dynamic(
+  () => import("@/components/charts/SpendingBar").then((m) => m.SpendingBar),
+  { ssr: false }
+);
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const { data, loading: dashLoading } = useDashboard();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!authLoading && !user) {
       router.push("/login");
     }
-  }, [user, isLoading, router]);
+  }, [user, authLoading, router]);
 
-  if (isLoading || !user) {
+  if (authLoading || !user) {
     return null;
   }
 
@@ -26,66 +39,83 @@ export default function DashboardPage() {
             Welcome, <span className="gradient-text">{user.name}</span>
           </h1>
           <p className="text-omni-muted mt-1">
-            Here&apos;s your financial overview
+            Your aggregated financial overview across all banks
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card">
-            <p className="text-sm text-omni-muted mb-1">SEK Balance</p>
-            <p className="text-2xl font-bold text-omni-text">10,000.00 kr</p>
-            <p className="text-xs text-omni-success mt-2">Starting balance</p>
-          </div>
-          <div className="card">
-            <p className="text-sm text-omni-muted mb-1">Verification Status</p>
-            <p className="text-2xl font-bold">
-              {user.isVerified ? (
-                <span className="text-omni-success">Verified</span>
-              ) : (
-                <span className="text-omni-warning">Pending</span>
-              )}
-            </p>
-            {!user.isVerified && (
-              <button
-                onClick={() => router.push("/verify")}
-                className="text-xs text-omni-accent hover:text-omni-accent-light mt-2 transition-colors"
-              >
-                Verify now
-              </button>
-            )}
-          </div>
-          <div className="card">
-            <p className="text-sm text-omni-muted mb-1">Account ID</p>
-            <p className="text-sm font-mono text-omni-text truncate">
-              {user.id}
-            </p>
-            <p className="text-xs text-omni-muted mt-2">{user.email}</p>
-          </div>
-        </div>
-
-        <div className="mt-8 card">
-          <h2 className="text-lg font-semibold text-omni-text mb-4">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { label: "Open Banking", desc: "Coming soon" },
-              { label: "Budget Alerts", desc: "Coming soon" },
-              { label: "Crypto Exchange", desc: "Coming soon" },
-              { label: "Audit Log", desc: "Coming soon" },
-            ].map((action) => (
-              <button
-                key={action.label}
-                className="p-4 rounded-lg bg-omni-darker border border-omni-border hover:border-omni-accent/30 transition-all text-left"
-              >
-                <p className="text-sm font-medium text-omni-text">
-                  {action.label}
-                </p>
-                <p className="text-xs text-omni-muted mt-1">{action.desc}</p>
-              </button>
+        {dashLoading || !data ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="card animate-pulse h-28" />
             ))}
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Account cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="card border-omni-accent/30 md:col-span-1">
+                <p className="text-xs text-omni-muted uppercase tracking-wider mb-1">
+                  Total Balance
+                </p>
+                <p className="text-3xl font-bold gradient-text">
+                  {data.totalBalance.toLocaleString("sv-SE")} kr
+                </p>
+                <p className="text-xs text-omni-muted mt-2">
+                  {data.accounts.length} accounts aggregated
+                </p>
+              </div>
+
+              {data.accounts.map((acc) => (
+                <div key={acc.accountId} className="card">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-omni-muted uppercase tracking-wider">
+                      {acc.bankName}
+                    </p>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        acc.source === "omnibank"
+                          ? "bg-omni-accent/20 text-omni-accent"
+                          : "bg-omni-border text-omni-muted"
+                      }`}
+                    >
+                      {acc.source === "omnibank" ? "Internal" : "PSD2"}
+                    </span>
+                  </div>
+                  <p className="text-xl font-bold text-omni-text">
+                    {acc.balance.toLocaleString("sv-SE")} kr
+                  </p>
+                  <p className="text-xs text-omni-muted mt-1 font-mono">
+                    {acc.accountId}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div className="card">
+                <h2 className="text-lg font-semibold text-omni-text mb-4">
+                  Spending by Category
+                </h2>
+                <SpendingDoughnut data={data.spendingByCategory} />
+              </div>
+              <div className="card">
+                <h2 className="text-lg font-semibold text-omni-text mb-4">
+                  Category Breakdown
+                </h2>
+                <SpendingBar data={data.spendingByCategory} />
+              </div>
+            </div>
+
+            {/* Transactions */}
+            <div className="card">
+              <h2 className="text-lg font-semibold text-omni-text mb-4">
+                Recent Transactions
+              </h2>
+              <TransactionList transactions={data.transactions} />
+            </div>
+          </>
+        )}
       </div>
     </main>
   );

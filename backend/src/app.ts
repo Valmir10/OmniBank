@@ -4,6 +4,7 @@ import { Pool } from "pg";
 import { env } from "./infrastructure/config/env";
 import { errorHandler } from "./presentation/middleware/errorHandler";
 import { createAuthRouter } from "./presentation/routes/authRoutes";
+import { createDashboardRouter } from "./presentation/routes/dashboardRoutes";
 import healthRoutes from "./presentation/routes/healthRoutes";
 import { createDependencies } from "./infrastructure/config/dependencies";
 
@@ -19,6 +20,7 @@ export function createApp(pool: Pool) {
   // Routes
   app.use("/api/health", healthRoutes);
   app.use("/api/auth", createAuthRouter(deps.authController));
+  app.use("/api/dashboard", createDashboardRouter(deps.dashboardController));
 
   // Error handling
   app.use(errorHandler);
