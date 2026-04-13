@@ -28,6 +28,18 @@ export function Navbar() {
               >
                 Budgets
               </Link>
+              <Link
+                href="/exchange"
+                className="text-omni-muted hover:text-omni-text transition-colors text-sm"
+              >
+                Exchange
+              </Link>
+              <Link
+                href="/audit-log"
+                className="text-omni-muted hover:text-omni-text transition-colors text-sm"
+              >
+                Ledger
+              </Link>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-omni-muted">{user.name}</span>
                 {user.isVerified ? (
