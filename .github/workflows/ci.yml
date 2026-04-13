@@ -2,9 +2,8 @@ name: OmniBank CI
 
 on:
   push:
-    branches: [main, project-init-structure]
-  pull_request:
     branches: [main]
+  pull_request:
 
 jobs:
   backend-test:
