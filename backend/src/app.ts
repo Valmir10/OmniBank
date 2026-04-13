@@ -7,6 +7,8 @@ import { createAuthRouter } from "./presentation/routes/authRoutes";
 import { createDashboardRouter } from "./presentation/routes/dashboardRoutes";
 import { createBudgetRouter } from "./presentation/routes/budgetRoutes";
 import { createTransactionRouter } from "./presentation/routes/transactionRoutes";
+import { createExchangeRouter } from "./presentation/routes/exchangeRoutes";
+import { createAuditLogRouter } from "./presentation/routes/auditLogRoutes";
 import healthRoutes from "./presentation/routes/healthRoutes";
 import { createDependencies } from "./infrastructure/config/dependencies";
 import { SocketServer } from "./infrastructure/websocket/SocketServer";
@@ -26,6 +28,8 @@ export function createApp(pool: Pool, socketServer: SocketServer | null = null) 
   app.use("/api/dashboard", createDashboardRouter(deps.dashboardController));
   app.use("/api/budgets", createBudgetRouter(deps.budgetController));
   app.use("/api/transactions", createTransactionRouter(deps.transactionController));
+  app.use("/api/exchange", createExchangeRouter(deps.exchangeController));
+  app.use("/api/audit-logs", createAuditLogRouter(deps.auditLogController));
 
   // Error handling
   app.use(errorHandler);
