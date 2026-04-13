@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -25,18 +26,32 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
+function useIsDark() {
+  const [dark, setDark] = useState(true);
+  useEffect(() => {
+    const check = () => setDark(document.documentElement.classList.contains("dark"));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+  return dark;
+}
+
 export function SpendingBar({ data }: { data: SpendingByCategory[] }) {
+  const isDark = useIsDark();
+
   const chartData = {
     labels: data.map((d) => CATEGORY_LABELS[d.category] || d.category),
     datasets: [
       {
         label: "Spending (SEK)",
         data: data.map((d) => d.total),
-        backgroundColor: "rgba(99, 102, 241, 0.6)",
+        backgroundColor: isDark ? "rgba(99, 102, 241, 0.6)" : "rgba(99, 102, 241, 0.7)",
         borderColor: "rgba(99, 102, 241, 1)",
         borderWidth: 1,
         borderRadius: 6,
-        hoverBackgroundColor: "rgba(99, 102, 241, 0.8)",
+        hoverBackgroundColor: "rgba(99, 102, 241, 0.9)",
       },
     ],
   };
@@ -46,13 +61,13 @@ export function SpendingBar({ data }: { data: SpendingByCategory[] }) {
     maintainAspectRatio: false,
     scales: {
       x: {
-        grid: { color: "rgba(30, 41, 59, 0.5)" },
-        ticks: { color: "#94a3b8", font: { size: 11 } },
+        grid: { color: isDark ? "rgba(30, 41, 59, 0.5)" : "rgba(226, 232, 240, 0.8)" },
+        ticks: { color: isDark ? "#94a3b8" : "#475569", font: { size: 11 } },
       },
       y: {
-        grid: { color: "rgba(30, 41, 59, 0.5)" },
+        grid: { color: isDark ? "rgba(30, 41, 59, 0.5)" : "rgba(226, 232, 240, 0.8)" },
         ticks: {
-          color: "#94a3b8",
+          color: isDark ? "#94a3b8" : "#475569",
           font: { size: 11 },
           callback: (value: string | number) => `${Number(value).toLocaleString()} kr`,
         },
@@ -61,10 +76,10 @@ export function SpendingBar({ data }: { data: SpendingByCategory[] }) {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "#1e293b",
-        titleColor: "#e2e8f0",
-        bodyColor: "#94a3b8",
-        borderColor: "#334155",
+        backgroundColor: isDark ? "#1e293b" : "#ffffff",
+        titleColor: isDark ? "#e2e8f0" : "#0f172a",
+        bodyColor: isDark ? "#94a3b8" : "#475569",
+        borderColor: isDark ? "#334155" : "#e2e8f0",
         borderWidth: 1,
         padding: 12,
         callbacks: {

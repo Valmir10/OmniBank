@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/services/api";
-import { Budget, TransactionCategory } from "@/types";
+import { TransactionCategory } from "@/types";
+import { DashboardData } from "@/types/dashboard";
 
-interface BudgetResponse {
+export interface BudgetWithSpending {
   id: string;
   category: TransactionCategory;
   limitAmount: number;
@@ -15,26 +16,48 @@ interface BudgetResponse {
   year: number;
 }
 
-const MOCK_BUDGETS: BudgetResponse[] = [
-  { id: "b1", category: "food", limitAmount: 3000, currentSpent: 813, remainingAmount: 2187, isExceeded: false, month: 4, year: 2026 },
-  { id: "b2", category: "entertainment", limitAmount: 500, currentSpent: 348, remainingAmount: 152, isExceeded: false, month: 4, year: 2026 },
-  { id: "b3", category: "transport", limitAmount: 1200, currentSpent: 1035, remainingAmount: 165, isExceeded: false, month: 4, year: 2026 },
-  { id: "b4", category: "rent", limitAmount: 9000, currentSpent: 8500, remainingAmount: 500, isExceeded: false, month: 4, year: 2026 },
-  { id: "b5", category: "utilities", limitAmount: 600, currentSpent: 450, remainingAmount: 150, isExceeded: false, month: 4, year: 2026 },
-];
+interface RawBudget {
+  id: string;
+  category: TransactionCategory;
+  limitAmount: number;
+  currentSpent: number;
+  remainingAmount: number;
+  isExceeded: boolean;
+  month: number;
+  year: number;
+}
 
 export function useBudgets() {
-  const [budgets, setBudgets] = useState<BudgetResponse[]>([]);
+  const [budgets, setBudgets] = useState<BudgetWithSpending[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchBudgets = useCallback(async () => {
     setLoading(true);
-    const res = await api.get<BudgetResponse[]>("/budgets");
-    if (res.error) {
-      setBudgets(MOCK_BUDGETS);
-    } else {
-      setBudgets(res.data!);
-    }
+
+    // Fetch budgets and dashboard data in parallel
+    const [budgetRes, dashRes] = await Promise.all([
+      api.get<RawBudget[]>("/budgets"),
+      api.get<DashboardData>("/dashboard"),
+    ]);
+
+    const rawBudgets = budgetRes.data || [];
+    const spendingByCategory = dashRes.data?.spendingByCategory || [];
+
+    // Merge: use actual spending from transactions
+    const spendingMap = new Map(spendingByCategory.map((s) => [s.category, s.total]));
+
+    const merged: BudgetWithSpending[] = rawBudgets.map((b) => {
+      const realSpent = spendingMap.get(b.category) || b.currentSpent;
+      const remaining = Math.max(0, b.limitAmount - realSpent);
+      return {
+        ...b,
+        currentSpent: realSpent,
+        remainingAmount: remaining,
+        isExceeded: realSpent > b.limitAmount,
+      };
+    });
+
+    setBudgets(merged);
     setLoading(false);
   }, []);
 
@@ -45,18 +68,18 @@ export function useBudgets() {
   const createBudget = useCallback(
     async (category: TransactionCategory, limitAmount: number) => {
       const now = new Date();
-      const res = await api.post<BudgetResponse>("/budgets", {
+      const res = await api.post<RawBudget>("/budgets", {
         category,
         limitAmount,
         month: now.getMonth() + 1,
         year: now.getFullYear(),
       });
       if (!res.error) {
-        setBudgets((prev) => [...prev, res.data!]);
+        await fetchBudgets();
       }
       return res;
     },
-    []
+    [fetchBudgets]
   );
 
   return { budgets, loading, createBudget, refetch: fetchBudgets };

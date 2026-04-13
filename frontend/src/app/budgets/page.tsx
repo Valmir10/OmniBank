@@ -29,7 +29,7 @@ const CATEGORY_COLORS: Record<string, { bar: string; bg: string }> = {
 export default function BudgetsPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const { budgets, loading } = useBudgets();
+  const { budgets, loading, createBudget } = useBudgets();
   const [showForm, setShowForm] = useState(false);
   const [newCategory, setNewCategory] = useState<TransactionCategory>("food");
   const [newLimit, setNewLimit] = useState("");
@@ -96,7 +96,17 @@ export default function BudgetsPage() {
                   onChange={(e) => setNewLimit(e.target.value)}
                 />
               </div>
-              <button className="btn-primary">Add</button>
+              <button
+                className="btn-primary"
+                onClick={async () => {
+                  if (!newLimit) return;
+                  await createBudget(newCategory, parseFloat(newLimit));
+                  setNewLimit("");
+                  setShowForm(false);
+                }}
+              >
+                Add
+              </button>
             </div>
           </div>
         )}

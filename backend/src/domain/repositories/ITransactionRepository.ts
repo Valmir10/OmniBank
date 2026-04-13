@@ -9,4 +9,6 @@ export interface ITransactionRepository {
     startDate: Date,
     endDate: Date
   ): Promise<Transaction[]>;
+  delete(id: string): Promise<boolean>;
+  updateAmount(id: string, amount: number): Promise<void>;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/hooks/useTheme";
 import { useSocket } from "@/hooks/useSocket";
 import { Navbar } from "./Navbar";
 import { NotificationPanel } from "../ui/NotificationPanel";
@@ -21,8 +22,10 @@ function AppShell({ children }: { children: ReactNode }) {
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <AppShell>{children}</AppShell>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppShell>{children}</AppShell>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

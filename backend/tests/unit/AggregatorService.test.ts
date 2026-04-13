@@ -23,6 +23,8 @@ describe("AggregatorService", () => {
       findByAccountId: jest.fn(),
       create: jest.fn(),
       findByAccountIdWithDateRange: jest.fn(),
+      delete: jest.fn(),
+      updateAmount: jest.fn(),
     };
     mockBankApi = {
       getAccounts: jest.fn(),

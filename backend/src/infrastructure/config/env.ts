@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
+import path from "path";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 export const env = {
   port: parseInt(process.env.PORT || "3001", 10),
@@ -9,8 +10,8 @@ export const env = {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432", 10),
     name: process.env.DB_NAME || "omnibank",
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
+    user: process.env.DB_USER || "valmirzogaj",
+    password: process.env.DB_PASSWORD ?? "",
   },
   jwt: {
     secret: process.env.JWT_SECRET || "omnibank-dev-secret-change-in-production",

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { SpendingByCategory } from "@/types/dashboard";
@@ -28,7 +29,21 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
+function useIsDark() {
+  const [dark, setDark] = useState(true);
+  useEffect(() => {
+    const check = () => setDark(document.documentElement.classList.contains("dark"));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+  return dark;
+}
+
 export function SpendingDoughnut({ data }: { data: SpendingByCategory[] }) {
+  const isDark = useIsDark();
+
   const chartData = {
     labels: data.map((d) => CATEGORY_LABELS[d.category] || d.category),
     datasets: [
@@ -37,10 +52,10 @@ export function SpendingDoughnut({ data }: { data: SpendingByCategory[] }) {
         backgroundColor: data.map(
           (d) => CATEGORY_COLORS[d.category] || "#6b7280"
         ),
-        borderColor: "#111827",
+        borderColor: isDark ? "#111827" : "#ffffff",
         borderWidth: 3,
         hoverBorderWidth: 2,
-        hoverBorderColor: "#e2e8f0",
+        hoverBorderColor: isDark ? "#e2e8f0" : "#0f172a",
       },
     ],
   };
@@ -53,18 +68,18 @@ export function SpendingDoughnut({ data }: { data: SpendingByCategory[] }) {
       legend: {
         position: "bottom" as const,
         labels: {
-          color: "#94a3b8",
+          color: isDark ? "#94a3b8" : "#475569",
           padding: 16,
           usePointStyle: true,
-          pointStyleWidth: 10,
+          pointStyle: "circle",
           font: { size: 12 },
         },
       },
       tooltip: {
-        backgroundColor: "#1e293b",
-        titleColor: "#e2e8f0",
-        bodyColor: "#94a3b8",
-        borderColor: "#334155",
+        backgroundColor: isDark ? "#1e293b" : "#ffffff",
+        titleColor: isDark ? "#e2e8f0" : "#0f172a",
+        bodyColor: isDark ? "#94a3b8" : "#475569",
+        borderColor: isDark ? "#334155" : "#e2e8f0",
         borderWidth: 1,
         padding: 12,
         callbacks: {
