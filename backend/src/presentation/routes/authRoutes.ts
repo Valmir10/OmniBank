@@ -1,25 +1,15 @@
 import { Router } from "express";
 import { validate, registerSchema, loginSchema } from "../middleware/validation";
+import { authMiddleware } from "../middleware/authMiddleware";
+import { AuthController } from "../controllers/AuthController";
 
-const router = Router();
+export function createAuthRouter(controller: AuthController): Router {
+  const router = Router();
 
-// POST /api/auth/register
-router.post("/register", validate(registerSchema), async (_req, res, next) => {
-  try {
-    // Use case injection will be set up when wiring dependencies
-    res.status(201).json({ message: "Registration endpoint ready" });
-  } catch (error) {
-    next(error);
-  }
-});
+  router.post("/register", validate(registerSchema), controller.register);
+  router.post("/login", validate(loginSchema), controller.login);
+  router.post("/verify", authMiddleware, controller.verify);
+  router.get("/me", authMiddleware, controller.me);
 
-// POST /api/auth/login
-router.post("/login", validate(loginSchema), async (_req, res, next) => {
-  try {
-    res.status(200).json({ message: "Login endpoint ready" });
-  } catch (error) {
-    next(error);
-  }
-});
-
-export default router;
+  return router;
+}

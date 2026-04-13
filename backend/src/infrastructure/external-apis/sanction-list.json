@@ -1,0 +1,31 @@
+{
+  "description": "Simulated EU/UN sanctions list for KYC/AML compliance demo",
+  "lastUpdated": "2026-04-13",
+  "sanctionedEntities": [
+    {
+      "name": "Ivan Petrov",
+      "reason": "EU Council Regulation 2024/001 - Financial sanctions",
+      "country": "RU"
+    },
+    {
+      "name": "Kim Yong Su",
+      "reason": "UN Security Council Resolution 1718 - Proliferation financing",
+      "country": "KP"
+    },
+    {
+      "name": "Ahmad Al-Rashid",
+      "reason": "EU Regulation 2024/015 - Terrorist financing",
+      "country": "SY"
+    },
+    {
+      "name": "Darknet Finance Corp",
+      "reason": "OFAC SDN List - Money laundering",
+      "country": "XX"
+    },
+    {
+      "name": "Maria Testblockerad",
+      "reason": "Simulated entry for testing - always blocked",
+      "country": "SE"
+    }
+  ]
+}

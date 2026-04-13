@@ -1,6 +1,8 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
+    <main className="flex min-h-screen flex-col items-center justify-center p-8 pt-20">
       <div className="animate-fade-in text-center">
         <h1 className="text-6xl font-bold mb-4">
           <span className="gradient-text">OmniBank</span>
@@ -10,8 +12,12 @@ export default function Home() {
           connected.
         </p>
         <div className="flex gap-4 justify-center">
-          <button className="btn-primary">Get Started</button>
-          <button className="btn-secondary">Learn More</button>
+          <Link href="/register" className="btn-primary">
+            Get Started
+          </Link>
+          <Link href="/login" className="btn-secondary">
+            Sign In
+          </Link>
         </div>
       </div>
 

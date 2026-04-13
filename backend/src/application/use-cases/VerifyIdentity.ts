@@ -1,14 +1,22 @@
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { SparService } from "../../infrastructure/external-apis/SparService";
+import { SanctionService } from "../../infrastructure/external-apis/SanctionService";
 
-interface SanctionCheckResult {
-  isSanctioned: boolean;
-  details?: string;
+export interface VerifyResult {
+  verified: boolean;
+  message: string;
+  sparLookup?: { found: boolean; registeredAddress?: string };
+  sanctionCheck?: { clear: boolean; reason?: string };
 }
 
 export class VerifyIdentity {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+    private sparService: SparService,
+    private sanctionService: SanctionService
+  ) {}
 
-  async execute(userId: string): Promise<{ verified: boolean; message: string }> {
+  async execute(userId: string): Promise<VerifyResult> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new Error("User not found");
@@ -18,36 +26,39 @@ export class VerifyIdentity {
       return { verified: true, message: "User is already verified" };
     }
 
-    // Simulated mTLS call to mocked SPAR service
-    const sparResult = await this.simulateSparLookup(user.name);
-    if (!sparResult) {
-      return { verified: false, message: "SPAR lookup failed - identity not found" };
-    }
-
-    // Simulated sanction list check
-    const sanctionResult = await this.checkSanctionList(user.name);
-    if (sanctionResult.isSanctioned) {
+    // Step 1: Simulated mTLS call to SPAR registry
+    const sparResult = await this.sparService.lookup(user.name);
+    if (!sparResult.found) {
       return {
         verified: false,
-        message: `Verification denied: ${sanctionResult.details}`,
+        message: "Identity not found in SPAR registry",
+        sparLookup: { found: false },
       };
     }
 
+    // Step 2: Check against sanction list
+    const sanctionResult = await this.sanctionService.check(user.name);
+    if (sanctionResult.isSanctioned) {
+      return {
+        verified: false,
+        message: `Verification denied: match found on sanctions list`,
+        sparLookup: { found: true, registeredAddress: sparResult.registeredAddress },
+        sanctionCheck: {
+          clear: false,
+          reason: sanctionResult.matchedEntity?.reason,
+        },
+      };
+    }
+
+    // Step 3: Mark user as verified
     const verifiedUser = user.verify();
     await this.userRepository.update(verifiedUser);
 
-    return { verified: true, message: "Identity verified successfully via simulated KYC" };
-  }
-
-  private async simulateSparLookup(name: string): Promise<boolean> {
-    // Simulates mTLS handshake + SPAR registry lookup
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return name.length > 0;
-  }
-
-  private async checkSanctionList(_name: string): Promise<SanctionCheckResult> {
-    // Check against local sanction list (simulated)
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    return { isSanctioned: false };
+    return {
+      verified: true,
+      message: "Identity verified successfully via simulated KYC/AML process",
+      sparLookup: { found: true, registeredAddress: sparResult.registeredAddress },
+      sanctionCheck: { clear: true },
+    };
   }
 }
