@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0a0e1a;
+    --foreground: #e2e8f0;
+  }
+
+  body {
+    @apply bg-omni-dark text-omni-text antialiased;
+  }
+
+  * {
+    @apply border-omni-border;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-omni-card rounded-xl border border-omni-border p-6
+           transition-all duration-300 hover:border-omni-accent/30;
+  }
+
+  .btn-primary {
+    @apply bg-omni-accent hover:bg-omni-accent-light text-white font-medium
+           py-2.5 px-6 rounded-lg transition-all duration-200
+           hover:shadow-lg hover:shadow-omni-accent/25 active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply bg-omni-card hover:bg-omni-border text-omni-text font-medium
+           py-2.5 px-6 rounded-lg border border-omni-border
+           transition-all duration-200 active:scale-[0.98];
+  }
+
+  .input-field {
+    @apply w-full bg-omni-darker border border-omni-border rounded-lg
+           px-4 py-3 text-omni-text placeholder-omni-muted
+           focus:outline-none focus:border-omni-accent focus:ring-1
+           focus:ring-omni-accent transition-all duration-200;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-omni-accent to-omni-accent-light
+           bg-clip-text text-transparent;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060912;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
