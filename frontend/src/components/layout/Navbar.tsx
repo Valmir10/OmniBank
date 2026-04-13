@@ -22,6 +22,12 @@ export function Navbar() {
               >
                 Dashboard
               </Link>
+              <Link
+                href="/budgets"
+                className="text-omni-muted hover:text-omni-text transition-colors text-sm"
+              >
+                Budgets
+              </Link>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-omni-muted">{user.name}</span>
                 {user.isVerified ? (
