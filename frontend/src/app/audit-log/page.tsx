@@ -47,6 +47,7 @@ export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -69,6 +70,15 @@ export default function AuditLogPage() {
 
   if (authLoading || !user) return null;
 
+  const filteredLogs = search
+    ? logs.filter(
+        (l) =>
+          l.transactionHash.toLowerCase().includes(search.toLowerCase()) ||
+          String(l.details.fromCurrency).toLowerCase().includes(search.toLowerCase()) ||
+          String(l.details.toCurrency).toLowerCase().includes(search.toLowerCase())
+      )
+    : logs;
+
   return (
     <main className="min-h-screen pt-20 p-6">
       <div className="max-w-5xl mx-auto animate-fade-in">
@@ -81,12 +91,27 @@ export default function AuditLogPage() {
           </p>
         </div>
 
-        <div className="card mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-omni-success animate-pulse" />
-            <p className="text-sm text-omni-muted">
-              {logs.length} entries logged. This ledger is append-only and cannot be modified.
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="card">
+            <p className="text-xs text-omni-muted uppercase tracking-wider mb-1">Total Entries</p>
+            <p className="text-2xl font-bold text-omni-text">{logs.length}</p>
+          </div>
+          <div className="card">
+            <p className="text-xs text-omni-muted uppercase tracking-wider mb-1">Status</p>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="w-2 h-2 rounded-full bg-omni-success animate-pulse" />
+              <p className="text-sm text-omni-success font-medium">Append-only active</p>
+            </div>
+          </div>
+          <div className="card">
+            <p className="text-xs text-omni-muted uppercase tracking-wider mb-1">Search</p>
+            <input
+              type="text"
+              className="input-field text-sm py-1.5 mt-1"
+              placeholder="Hash or currency..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
         </div>
 
@@ -108,7 +133,7 @@ export default function AuditLogPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {logs.map((log) => {
+            {filteredLogs.map((log) => {
               const details = log.details;
               const isExpanded = expanded === log.id;
 

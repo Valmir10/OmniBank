@@ -57,6 +57,21 @@ export class TransactionRepository implements ITransactionRepository {
     return result.rows.map((row) => this.toDomain(row));
   }
 
+  async delete(id: string): Promise<boolean> {
+    const result = await this.pool.query(
+      "DELETE FROM transactions WHERE id = $1",
+      [id]
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async updateAmount(id: string, amount: number): Promise<void> {
+    await this.pool.query(
+      "UPDATE transactions SET amount = $1 WHERE id = $2",
+      [amount, id]
+    );
+  }
+
   private toDomain(row: Record<string, unknown>): Transaction {
     return Transaction.create({
       id: row.id as string,

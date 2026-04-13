@@ -12,6 +12,56 @@
     @apply bg-omni-dark text-omni-text antialiased;
   }
 
+  .light body,
+  .light {
+    --background: #f8fafc;
+    --foreground: #0f172a;
+  }
+
+  .light body {
+    @apply bg-[#f8fafc] text-[#0f172a];
+  }
+
+  .light .bg-omni-dark { background-color: #f8fafc; }
+  .light .bg-omni-darker { background-color: #f1f5f9; }
+  .light .bg-omni-card { background-color: #ffffff; }
+  .light .border-omni-border { border-color: #e2e8f0; }
+  .light .text-omni-text { color: #0f172a; }
+  .light .text-omni-muted { color: #64748b; }
+  .light .bg-omni-darker\/50 { background-color: rgb(241 245 249 / 0.5); }
+  .light .bg-omni-border { background-color: #e2e8f0; }
+
+  .light .card {
+    @apply bg-white border-slate-200 shadow-sm;
+  }
+
+  .light .input-field {
+    @apply bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400;
+  }
+
+  .light .btn-secondary {
+    @apply bg-white border-slate-200 text-slate-900 hover:bg-slate-50;
+  }
+
+  .light nav {
+    @apply bg-white/80 border-slate-200;
+  }
+
+  /* Fix PSD2 badges and muted backgrounds in light mode */
+  .light .bg-omni-card\/80 { background-color: rgb(255 255 255 / 0.8); }
+  .light .bg-omni-darker\/80 { background-color: rgb(241 245 249 / 0.8); }
+  .light .bg-omni-card\/50 { background-color: rgb(255 255 255 / 0.5); }
+  .light .bg-omni-card\/30 { background-color: rgb(255 255 255 / 0.3); }
+  .light .bg-omni-darker { background-color: #f1f5f9; }
+
+  /* Ensure select dropdowns are readable in light mode */
+  .light select.input-field {
+    @apply bg-slate-50 text-slate-900;
+  }
+  .light select.input-field option {
+    @apply bg-white text-slate-900;
+  }
+
   * {
     @apply border-omni-border;
   }
@@ -57,9 +107,17 @@
   background: #060912;
 }
 
+.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
   border-radius: 3px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
 }
 
 ::-webkit-scrollbar-thumb:hover {

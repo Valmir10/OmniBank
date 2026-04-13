@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-omni-darker/80 backdrop-blur-md border-b border-omni-border">
@@ -40,8 +40,16 @@ export function Navbar() {
               >
                 Ledger
               </Link>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-omni-muted">{user.name}</span>
+              <div className="flex items-center gap-3 ml-2 pl-3 border-l border-omni-border">
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-omni-accent to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm text-omni-muted hidden md:inline">{user.name}</span>
+                </Link>
                 {user.isVerified ? (
                   <span className="text-xs bg-omni-success/20 text-omni-success px-2 py-0.5 rounded-full">
                     Verified
@@ -54,12 +62,6 @@ export function Navbar() {
                     Unverified
                   </Link>
                 )}
-                <button
-                  onClick={logout}
-                  className="text-sm text-omni-muted hover:text-omni-danger transition-colors"
-                >
-                  Logout
-                </button>
               </div>
             </>
           ) : (

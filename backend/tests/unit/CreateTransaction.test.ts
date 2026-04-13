@@ -24,6 +24,8 @@ describe("CreateTransaction Use Case", () => {
       findByAccountId: jest.fn(),
       create: jest.fn().mockImplementation(async (t) => t),
       findByAccountIdWithDateRange: jest.fn(),
+      delete: jest.fn(),
+      updateAmount: jest.fn(),
     };
     mockAccountRepo = {
       findById: jest.fn(),

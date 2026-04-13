@@ -6,6 +6,8 @@ export function createTransactionRouter(controller: TransactionController): Rout
   const router = Router();
 
   router.post("/", authMiddleware, controller.create);
+  router.patch("/:id", authMiddleware, controller.update);
+  router.delete("/:id", authMiddleware, controller.delete);
 
   return router;
 }

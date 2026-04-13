@@ -15,6 +15,8 @@ import { VerifyIdentity } from "../../application/use-cases/VerifyIdentity";
 import { AggregatorService } from "../../application/services/AggregatorService";
 import { ManageBudget } from "../../application/use-cases/ManageBudget";
 import { CreateTransaction } from "../../application/use-cases/CreateTransaction";
+import { DeleteTransaction } from "../../application/use-cases/DeleteTransaction";
+import { UpdateTransaction } from "../../application/use-cases/UpdateTransaction";
 import { ExchangeCurrency } from "../../application/use-cases/ExchangeCurrency";
 import { AuthController } from "../../presentation/controllers/AuthController";
 import { DashboardController } from "../../presentation/controllers/DashboardController";
@@ -53,13 +55,15 @@ export function createDependencies(pool: Pool, socketServer: SocketServer | null
   const aggregatorService = new AggregatorService(accountRepository, transactionRepository, mockBankApi);
   const manageBudget = new ManageBudget(budgetRepository);
   const createTransaction = new CreateTransaction(transactionRepository, accountRepository, budgetRepository);
+  const deleteTransaction = new DeleteTransaction(transactionRepository, accountRepository);
+  const updateTransaction = new UpdateTransaction(transactionRepository, accountRepository);
   const exchangeCurrency = new ExchangeCurrency(pool, accountRepository, cryptoApiService);
 
   // Controllers
   const authController = new AuthController(registerUser, loginUser, verifyIdentity);
   const dashboardController = new DashboardController(aggregatorService);
   const budgetController = new BudgetController(manageBudget);
-  const transactionController = new TransactionController(createTransaction, socketServer);
+  const transactionController = new TransactionController(createTransaction, deleteTransaction, updateTransaction, socketServer);
   const exchangeController = new ExchangeController(exchangeCurrency, cryptoApiService);
   const auditLogController = new AuditLogController(auditLogRepository);
 
